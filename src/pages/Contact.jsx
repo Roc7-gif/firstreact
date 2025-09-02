@@ -29,8 +29,10 @@ export function Contact() {
       } , [])
     return <>
         <AppNav />
-        <ContactList/>
+      <div className="lg:flex  p-2 gap-4">
+      <ContactList/>
         <ContactForm /> 
+      </div>
         <AppFooter/>
     
     </>
