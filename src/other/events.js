@@ -2,7 +2,7 @@ export const eventDetails = [
     {
     id : 1 ,
     title: "Hackathons Innovation Africaine",
-    date: "5-6 Octobre 2023",
+    date: "2023-10-05",
     time: "09:00 - 18:00",
     image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
     excerpt: "Maîtrisez les frameworks modernes JavaScript et construisez des applications web performantes.",

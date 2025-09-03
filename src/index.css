@@ -482,4 +482,103 @@ padding-block: 10px;
         opacity: 0;
     }
 }
-/*  Details CSS */
+/*  Modal Event CSS */
+
+.modal {
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+}
+
+.calendar-container {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-header {
+    background: linear-gradient(to right, #2563eb, #10b981);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #e5e7eb;
+}
+
+.calendar-day {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.event-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+}
+
+.event-card {
+    transition: all 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.active-date {
+    background: linear-gradient(to right, #2563eb, #10b981);
+    color: white;
+}
+
+.has-event {
+    background-color: #f0f9ff;
+    border: 1px solid #bfdbfe;
+}
+
+.filter-btn {
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: linear-gradient(to right, #2563eb, #10b981);
+    color: white;
+}
+
+.calendar-nav-btn {
+    transition: all 0.3s ease;
+}
+
+.calendar-nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.open-modal-btn {
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+}
+
+.open-modal-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+}

@@ -50,10 +50,10 @@ export function AppNav() {
                     </li>
                         
                        
-                    <button className=" inline-block btn btn-outline-success min-w-max  border-2 me-2 hover:bg-green-600 p-3 rounded-lg border-green-600 text-green-600 hover:text-white cursor-pointer">
+                    <button className=" inline-block min-w-max  border-2 mx-2  hover:bg-green-600 px-3  my-1     rounded-lg border-green-600 text-green-600 hover:text-white cursor-pointer">
                     <Link  to='/connexion' >Connexion</Link>
                     </button>
-                        <button className=" inline-block p-3 py-4 text-white shadow-xl cursor-pointer bg-blue-400 btn-join  min-w-max">
+                        <button className="  bg-gradient-to-r from-blue-600 to-green-500 text-white   inline-block p-3 py-4 text-white shadow-xl cursor-pointer bg-blue-400 btn-join  min-w-max">
                     <Link  to='/inscription'>  <FontAwesomeIcon icon={faUserPlus}/> Nous Rejoindre</Link>
                            
                     </button>

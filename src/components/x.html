@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un Événement - Coders4Africa</title>
+    <title>Modal Calendrier - Coders4Africa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,6 +26,9 @@
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #d1fae5 100%);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .gradient-text {
@@ -35,418 +38,392 @@
             background-clip: text;
         }
         
-        .form-container {
+        .modal {
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .calendar-container {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         }
         
-        .form-input {
+        .calendar-header {
+            background: linear-gradient(to right, #2563eb, #10b981);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #e5e7eb;
+        }
+        
+        .calendar-day {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .calendar-day:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .event-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+        
+        .event-card {
             transition: all 0.3s ease;
         }
         
-        .form-input:focus {
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
-        
-        .submit-btn {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: all 0.6s ease;
-        }
-        
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-        
-        .speaker-card {
-            transition: all 0.3s ease;
-        }
-        
-        .speaker-card:hover {
+        .event-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
-        .theme-tag {
+        .active-date {
+            background: linear-gradient(to right, #2563eb, #10b981);
+            color: white;
+        }
+        
+        .has-event {
+            background-color: #f0f9ff;
+            border: 1px solid #bfdbfe;
+        }
+        
+        .filter-btn {
             transition: all 0.3s ease;
         }
         
-        .theme-tag:hover {
-            transform: scale(1.05);
+        .filter-btn.active, .filter-btn:hover {
+            background: linear-gradient(to right, #2563eb, #10b981);
+            color: white;
         }
         
-        .floating {
-            animation: floating 6s ease-in-out infinite;
+        .calendar-nav-btn {
+            transition: all 0.3s ease;
         }
         
-        @keyframes floating {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(2deg); }
+        .calendar-nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .open-modal-btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+        
+        .open-modal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
         }
     </style>
 </head>
-<body class="min-h-screen py-12">
-    <div class="container mx-auto px-4 max-w-4xl">
-        <!-- En-tête du formulaire -->
-        <div class="text-center mb-12">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Créer un nouvel <span class="gradient-text">événement</span></h1>
-            <p class="text-lg text-gray-600">Remplissez le formulaire ci-dessous pour ajouter un nouvel événement à la plateforme Coders4Africa</p>
-        </div>
-        
-        <!-- Formulaire de création -->
-        <form id="eventForm" class="form-container bg-white rounded-2xl p-6 md:p-8">
-            <!-- Section Informations de base -->
-            <div class="mb-10">
-                <h2 class="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">Informations de base</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="title" class="block text-gray-700 mb-2">Titre de l'événement *</label>
-                        <input type="text" id="title" name="title" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: Hackathon Innovation Africaine">
-                    </div>
-                    
-                    <div>
-                        <label for="type" class="block text-gray-700 mb-2">Type d'événement *</label>
-                        <select id="type" name="type" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                            <option value="">Sélectionnez un type</option>
-                            <option value="hackathons">Hackathon</option>
-                            <option value="ateliers">Atelier</option>
-                            <option value="formations">Formation</option>
-                            <option value="conferences">Conférence</option>
-                            <option value="rencontres">Rencontre</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="date" class="block text-gray-700 mb-2">Date *</label>
-                        <input type="date" id="date" name="date" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label for="time" class="block text-gray-700 mb-2">Heure *</label>
-                        <input type="time" id="time" name="time" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
-                    </div>
+<body>
+    <!-- Bouton pour ouvrir le modal -->
+    <button id="openModal" class="open-modal-btn fixed top-6 right-6 bg-gradient-to-r from-blue-600 to-green-500 text-white font-bold py-3 px-6 rounded-full z-10">
+        <i class="fas fa-calendar-alt mr-2"></i> Voir le calendrier
+    </button>
+
+    <!-- Modal -->
+    <div id="calendarModal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <div class="modal-content max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="calendar-container bg-white rounded-2xl overflow-hidden">
+                <!-- En-tête du modal -->
+                <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800">Calendrier des <span class="gradient-text">Événements</span></h2>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
                 </div>
                 
-                <div class="mt-6">
-                    <label for="excerpt" class="block text-gray-700 mb-2">Résumé court *</label>
-                    <input type="text" id="excerpt" name="excerpt" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Description concise de l'événement">
-                </div>
-                
-                <div class="mt-6">
-                    <label for="description" class="block text-gray-700 mb-2">Description détaillée *</label>
-                    <textarea id="description" name="description" rows="4" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Décrivez en détail l'événement, ses objectifs, etc."></textarea>
-                </div>
-                
-                <div class="mt-6">
-                    <label for="image" class="block text-gray-700 mb-2">Image de l'événement (URL) *</label>
-                    <input type="url" id="image" name="image" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="https://exemple.com/image.jpg">
-                </div>
-            </div>
-            
-            <!-- Section Thématiques -->
-            <div class="mb-10">
-                <h2 class="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">Thématiques</h2>
-                
-                <div class="mb-4">
-                    <p class="text-gray-700 mb-3">Sélectionnez les thématiques de l'événement *</p>
-                    <div class="flex flex-wrap gap-3">
-                        <label class="theme-tag flex items-center">
-                            <input type="checkbox" name="themes" value="Santé digitale" class="mr-2">
-                            <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">Santé digitale</span>
-                        </label>
-                        
-                        <label class="theme-tag flex items-center">
-                            <input type="checkbox" name="themes" value="AgriTech" class="mr-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm">AgriTech</span>
-                        </label>
-                        
-                        <label class="theme-tag flex items-center">
-                            <input type="checkbox" name="themes" value="EdTech" class="mr-2">
-                            <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">EdTech</span>
-                        </label>
-                        
-                        <label class="theme-tag flex items-center">
-                            <input type="checkbox" name="themes" value="FinTech" class="mr-2">
-                            <span class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-sm">FinTech</span>
-                        </label>
-                        
-                        <label class="theme-tag flex items-center">
-                            <input type="checkbox" name="themes" value="E-commerce" class="mr-2">
-                            <span class="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm">E-commerce</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="customTheme" class="block text-gray-700 mb-2">Ajouter une thématique personnalisée</label>
-                    <div class="flex gap-3">
-                        <input type="text" id="customTheme" class="form-input flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Nouvelle thématique">
-                        <button type="button" id="addThemeBtn" class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">Ajouter</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Section Inscription -->
-            <div class="mb-10">
-                <h2 class="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">Informations d'inscription</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="totalSeats" class="block text-gray-700 mb-2">Nombre total de places *</label>
-                        <input type="number" id="totalSeats" name="totalSeats" min="1" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: 50">
-                    </div>
+                <!-- Contenu du modal -->
+                <div class="p-4 overflow-y-auto max-h-[80vh]">
                     
-                    <div>
-                        <label for="availableSeats" class="block text-gray-700 mb-2">Places disponibles *</label>
-                        <input type="number" id="availableSeats" name="availableSeats" min="0" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: 30">
-                    </div>
                     
-                    <div>
-                        <label for="price" class="block text-gray-700 mb-2">Prix *</label>
-                        <input type="text" id="price" name="price" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: Gratuit ou 50 000 FCFA">
-                    </div>
-                    
-                    <div>
-                        <label for="duration" class="block text-gray-700 mb-2">Durée *</label>
-                        <input type="text" id="duration" name="duration" required class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: 2 jours ou 3 heures">
-                    </div>
-                    
-                    <div>
-                        <label for="teamSize" class="block text-gray-700 mb-2">Taille d'équipe</label>
-                        <input type="text" id="teamSize" name="teamSize" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: 3-5 personnes (laisser vide si non applicable)">
-                    </div>
-                    
-                    <div>
-                        <label for="reward" class="block text-gray-700 mb-2">Récompense</label>
-                        <input type="text" id="reward" name="reward" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: 5 000 000 FCFA (laisser vide si non applicable)">
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Section Intervenants -->
-            <div class="mb-10">
-                <h2 class="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">Intervenants</h2>
-                
-                <div id="speakersContainer" class="space-y-4 mb-6">
-                    <!-- Les intervenants seront ajoutés ici dynamiquement -->
-                    <div class="speaker-card bg-gray-50 rounded-xl p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2">Nom de l'intervenant *</label>
-                                <input type="text" name="speakerName" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: Dr. Kwame Mensah">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2">Rôle *</label>
-                                <input type="text" name="speakerRole" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: Expert en Intelligence Artificielle">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2">Photo (URL)</label>
-                                <input type="url" name="speakerImage" class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="https://exemple.com/photo.jpg">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 mb-2">Biographie *</label>
-                            <textarea name="speakerBio" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Brève description de l'intervenant" rows="2"></textarea>
-                        </div>
-                        <div class="mt-3 flex justify-end">
-                            <button type="button" class="remove-speaker text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                    <!-- Calendrier -->
+                    <div class="mb-6">
+                        <!-- En-tête du calendrier -->
+                        <div class="calendar-header text-white p-4 flex justify-between items-center">
+                            <button id="prev-month" class="calendar-nav-btn w-8 h-8 rounded-full flex items-center justify-center">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h3 id="current-month" class="text-xl font-bold">Octobre 2023</h3>
+                            <button id="next-month" class="calendar-nav-btn w-8 h-8 rounded-full flex items-center justify-center">
+                                <i class="fas fa-chevron-right"></i>
                             </button>
                         </div>
+                        
+                        <!-- Jours de la semaine -->
+                        <div class="grid grid-cols-7 bg-gray-100">
+                            <div class="p-2 text-center text-gray-600 font-medium text-sm">Lun</div>
+                            <div class="p-2 text-center text-gray-600 font-medium text-sm">Mar</div>
+                            <div class="p-2 text-center text-gray-600 font-medium text-sm">Mer</div>
+                            <div class="p-2 text-center text-gray-600 font-medium text-sm">Jeu</div>
+                            <div class="p-2 text-center text-gray-600 font-medium text-sm">Ven</div>
+                            <div class="p-2 text-center text-gray-600 font-medium text-sm">Sam</div>
+                            <div class="p-2 text-center text-gray-600 font-medium text-sm">Dim</div>
+                        </div>
+                        
+                        <!-- Grille du calendrier -->
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- Les jours seront générés dynamiquement en JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Événements du jour sélectionné -->
+                    <div>
+                        <h3 id="selected-date" class="font-bold text-gray-700 mb-4">Sélectionnez une date pour voir les événements</h3>
+                        <div id="events-container" class="space-y-3">
+                            <!-- Les événements seront chargés dynamiquement -->
+                        </div>
                     </div>
                 </div>
                 
-                <button type="button" id="addSpeakerBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                    <i class="fas fa-plus mr-2"></i> Ajouter un intervenant
-                </button>
-            </div>
-            
-            <!-- Boutons de soumission -->
-            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                <button type="submit" class="submit-btn flex-1 bg-gradient-to-r from-blue-600 to-green-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
-                    Créer l'événement
-                </button>
-                <button type="reset" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                    Réinitialiser
-                </button>
-                <button type="button" id="previewBtn" class="flex-1 border border-blue-600 text-blue-600 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">
-                    Aperçu
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Modal d'aperçu -->
-    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-gray-800">Aperçu de l'événement</h3>
-                <button class="text-gray-500 hover:text-gray-700" id="closePreview">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="p-6" id="previewContent">
-                <!-- Le contenu de l'aperçu sera généré ici -->
+              
             </div>
         </div>
     </div>
 
     <script>
+        // Données des événements (simulées)
+        const eventsData = [
+            {
+                id: 1,
+                title: "Hackathon Innovation Africaine",
+                date: "2023-10-05",
+                endDate: "2023-10-06",
+                time: "09:00 - 18:00",
+                type: "hackathons",
+                location: "Abidjan, Côte d'Ivoire",
+                excerpt: "48h pour développer des solutions tech innovantes pour l'Afrique",
+                color: "bg-blue-500"
+            },
+            {
+                id: 2,
+                title: "Atelier Data Science",
+                date: "2023-10-12",
+                time: "10:00 - 16:00",
+                type: "ateliers",
+                location: "Lomé, Togo",
+                excerpt: "Initiation aux outils d'analyse de données et machine learning",
+                color: "bg-green-500"
+            },
+            {
+                id: 3,
+                title: "Formation Développement Web",
+                date: "2023-10-15",
+                endDate: "2023-10-20",
+                time: "09:00 - 17:00",
+                type: "formations",
+                location: "Cotonou, Bénin",
+                excerpt: "Maîtrisez les frameworks JavaScript modernes",
+                color: "bg-purple-500"
+            },
+            {
+                id: 4,
+                title: "Conférence sur l'IA en Afrique",
+                date: "2023-10-22",
+                time: "14:00 - 18:00",
+                type: "conferences",
+                location: "Dakar, Sénégal",
+                excerpt: "L'Intelligence Artificielle au service du développement africain",
+                color: "bg-red-500"
+            },
+            {
+                id: 5,
+                title: "Workshop UX/UI Design",
+                date: "2023-10-25",
+                time: "10:00 - 15:00",
+                type: "ateliers",
+                location: "Yaoundé, Cameroun",
+                excerpt: "Concevez des interfaces utilisateur exceptionnelles",
+                color: "bg-yellow-500"
+            },
+            {
+                id: 6,
+                title: "Hackathon Santé Digitale",
+                date: "2023-11-03",
+                endDate: "2023-11-04",
+                time: "09:00 - 18:00",
+                type: "hackathons",
+                location: "Nairobi, Kenya",
+                excerpt: "Solutions tech pour améliorer l'accès aux soins de santé",
+                color: "bg-blue-500"
+            }
+        ];
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Gestion de l'ajout de thématiques personnalisées
-            const addThemeBtn = document.getElementById('addThemeBtn');
-            const customThemeInput = document.getElementById('customTheme');
-            const themesContainer = document.querySelector('.flex-wrap.gap-3');
+            const modal = document.getElementById('calendarModal');
+            const openModalBtn = document.getElementById('openModal');
+            const closeModalBtn = document.getElementById('closeModal');
             
-            addThemeBtn.addEventListener('click', function() {
-                const theme = customThemeInput.value.trim();
-                if (theme) {
-                        
-                    const themeLabel = document.createElement('label');
-                    themeLabel.className = 'theme-tag flex items-center';
-                    themeLabel.innerHTML = `
-                        <input type="checkbox" name="themes" value="${theme}" class="mr-2">
-                        <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">${theme}</span>
-                    `;
-                    
-                    themesContainer.appendChild(themeLabel);
-                    customThemeInput.value = '';
+            // Ouvrir le modal
+            openModalBtn.addEventListener('click', function() {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Fermer le modal
+            closeModalBtn.addEventListener('click', function() {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Fermer le modal en cliquant à l'extérieur
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
                 }
             });
             
-            // Gestion de l'ajout d'intervenants
-            const addSpeakerBtn = document.getElementById('addSpeakerBtn');
-            const speakersContainer = document.getElementById('speakersContainer');
-            let speakerCount = 1;
-            
-            addSpeakerBtn.addEventListener('click', function() {
-                speakerCount++;
-                const speakerDiv = document.createElement('div');
-                speakerDiv.className = 'speaker-card bg-gray-50 rounded-xl p-4';
-                speakerDiv.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 mb-2">Nom de l'intervenant *</label>
-                            <input type="text" name="speakerName" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: Dr. Kwame Mensah">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 mb-2">Rôle *</label>
-                            <input type="text" name="speakerRole" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Ex: Expert en Intelligence Artificielle">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 mb-2">Photo (URL)</label>
-                            <input type="url" name="speakerImage" class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="https://exemple.com/photo.jpg">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Biographie *</label>
-                        <textarea name="speakerBio" required class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Brève description de l'intervenant" rows="2"></textarea>
-                    </div>
-                    <div class="mt-3 flex justify-end">
-                        <button type="button" class="remove-speaker text-red-600 hover:text-red-800">
-                            <i class="fas fa-trash-alt mr-1"></i> Supprimer
-                        </button>
-                    </div>
-                `;
-                
-                speakersContainer.appendChild(speakerDiv);
-                
-                // Ajouter l'événement de suppression
-                const removeBtn = speakerDiv.querySelector('.remove-speaker');
-                removeBtn.addEventListener('click', function() {
-                    if (speakerCount > 1) {
-                        speakersContainer.removeChild(speakerDiv);
-                        speakerCount--;
-                    }
-                });
+            // Fermer le modal avec la touche Échap
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
             });
             
-            // Ajouter les événements de suppression aux intervenants existants
-            document.querySelectorAll('.remove-speaker').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (speakerCount > 1) {
-                        const speakerCard = this.closest('.speaker-card');
-                        speakersContainer.removeChild(speakerCard);
-                        speakerCount--;
-                    }
-                });
+            // Initialisation du calendrier
+            let currentDate = new Date();
+            let currentMonth = currentDate.getMonth();
+            let currentYear = currentDate.getFullYear();
+            
+            const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                               "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+            
+            const calendarGrid = document.getElementById('calendar-grid');
+            const currentMonthElement = document.getElementById('current-month');
+            const eventsContainer = document.getElementById('events-container');
+            const selectedDateElement = document.getElementById('selected-date');
+            // const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            let activeFilter = 'all';
+            let selectedDate = null;
+            
+            // Initialisation
+            renderCalendar(currentMonth, currentYear);
+            
+            // Navigation du calendrier
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentMonth, currentYear);
             });
             
-            // Gestion de l'aperçu
-            const previewBtn = document.getElementById('previewBtn');
-            const previewModal = document.getElementById('previewModal');
-            const closePreview = document.getElementById('closePreview');
-            const previewContent = document.getElementById('previewContent');
-            
-            previewBtn.addEventListener('click', function() {
-                // Récupérer les valeurs du formulaire
-                const title = document.getElementById('title').value || 'Titre de l\'événement';
-                const type = document.getElementById('type').value || 'Type d\'événement';
-                const date = document.getElementById('date').value || 'Date non spécifiée';
-                const time = document.getElementById('time').value || 'Heure non spécifiée';
-                const excerpt = document.getElementById('excerpt').value || 'Résumé non fourni';
-                const description = document.getElementById('description').value || 'Description non fournie';
-                const image = document.getElementById('image').value || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80';
-                
-                // Générer l'aperçu
-                previewContent.innerHTML = `
-                    <div class="mb-6">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2">Aperçu de l'événement</h4>
-                        <div class="bg-gray-100 p-4 rounded-lg">
-                            <img src="${image}" alt="${title}" class="w-full h-48 object-cover rounded-lg mb-4">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-2">${title}</h2>
-                            <p class="text-blue-600 font-medium mb-2">${type} • ${date} • ${time}</p>
-                            <p class="text-gray-600 mb-4">${excerpt}</p>
-                            <p class="text-gray-700">${description}</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm">Ceci est un aperçu basique. L'événement complet sera affiché avec toutes les informations une fois créé.</p>
-                `;
-                
-                previewModal.classList.remove('hidden');
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentMonth, currentYear);
             });
             
-            closePreview.addEventListener('click', function() {
-                previewModal.classList.add('hidden');
-            });
-            
-            // Gestion de la soumission du formulaire
-            const eventForm = document.getElementById('eventForm');
-            
-            eventForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const submitBtn = this.querySelector('.submit-btn');
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
-                submitBtn.disabled = true;
-                
-                // Simulation de création d'événement
-                setTimeout(function() {
-                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Événement créé!';
-                    submitBtn.classList.remove('from-blue-600', 'to-green-500');
-                    submitBtn.classList.add('bg-green-500');
+            // // Filtres
+            // filterButtons.forEach(button => {
+            //     button.addEventListener('click', function() {
+            //         filterButtons.forEach(btn => btn.classList.remove('active'));
+            //         this.classList.add('active');
+            //         activeFilter = this.getAttribute('data-filter');
                     
-                    // Réinitialiser après quelques secondes
-                    setTimeout(function() {
-                        submitBtn.innerHTML = 'Créer l\'événement';
-                        submitBtn.disabled = false;
-                        submitBtn.classList.add('from-blue-600', 'to-green-500');
-                        submitBtn.classList.remove('bg-green-500');
-                        eventForm.reset();
-                    }, 2000);
-                }, 1500);
-            });
+            //         if (selectedDate) {
+            //             showEventsForDate(selectedDate);
+            //         }
+            //     });
+            // });
+            
+            // Fonction pour afficher le calendrier
+          
+            // Fonction pour obtenir les événements d'une date spécifique
+            function getEventsForDate(dateStr) {
+                let events = eventsData.filter(event => {
+                    // Vérifier si l'événement commence à cette date
+                    if (event.date === dateStr) return true;
+                    
+                    // Vérifier si l'événement est en cours sur plusieurs jours
+                    if (event.endDate) {
+                        const eventStart = new Date(event.date);
+                        const eventEnd = new Date(event.endDate);
+                        const currentDate = new Date(dateStr);
+                        
+                        return currentDate >= eventStart && currentDate <= eventEnd;
+                    }
+                    
+                    return false;
+                });
+                
+                // Appliquer le filtre
+                if (activeFilter !== 'all') {
+                    events = events.filter(event => event.type === activeFilter);
+                }
+                
+                return events;
+            }
+            
+            // Fonction pour afficher les événements d'une date spécifique
+            function showEventsForDate(dateStr) {
+                selectedDate = dateStr;
+                const events = getEventsForDate(dateStr);
+                const date = new Date(dateStr);
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = date.toLocaleDateString('fr-FR', options);
+                
+                selectedDateElement.textContent = `Événements du ${formattedDate}`;
+                
+                if (events.length === 0) {
+                    eventsContainer.innerHTML = `
+                        <div class="text-center py-4 text-gray-500">
+                            <i class="fas fa-calendar-day text-2xl mb-2"></i>
+                            <p>Aucun événement prévu pour cette date</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let eventsHTML = '';
+                
+                events.forEach(event => {
+                    eventsHTML += `
+                        <div class="event-card bg-gray-50 rounded-lg p-4 border-l-4 ${event.color}">
+                            <h4 class="font-bold text-gray-800 text-sm">${event.title}</h4>
+                            <div class="flex items-center text-xs text-gray-600 mt-1">
+                                <i class="far fa-clock mr-1"></i>
+                                <span>${event.time}</span>
+                                <i class="fas fa-map-marker-alt ml-2 mr-1"></i>
+                                <span>${event.location}</span>
+                            </div>
+                            <p class="text-xs text-gray-700 mt-2">${event.excerpt}</p>
+                        </div>
+                    `;
+                });
+                
+                eventsContainer.innerHTML = eventsHTML;
+            }
         });
     </script>
 </body>
